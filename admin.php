@@ -221,7 +221,7 @@ if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
         ?>
     </table>
     <?php if (!empty($_POST['edit'])) {
-        include('adminchange.php');
+        include('edit.php');
     } ?>
 </body>
 
