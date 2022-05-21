@@ -1,73 +1,80 @@
 <?php
-
-/**
- * Файл login.php для не авторизованного пользователя выводит форму логина.
- * При отправке формы проверяет логин/пароль и создает сессию,
- * записывает в нее логин и id пользователя.
- * После авторизации пользователь перенаправляется на главную страницу
- * для изменения ранее введенных данных.
- **/
-
-// Отправляем браузеру правильную кодировку,
-// файл login.php должен быть в кодировке UTF-8 без BOM.
 header('Content-Type: text/html; charset=UTF-8');
-
-// Начинаем сессию.
 session_start();
 
-// В суперглобальном массиве $_SESSION хранятся переменные сессии.
-// Будем сохранять туда логин после успешной авторизации.
 if (!empty($_SESSION['login'])) {
-  header('Location: ./');
+    header('Location: ./');
 }
 
-// В суперглобальном массиве $_SERVER PHP сохраняет некторые заголовки запроса HTTP
-// и другие сведения о клиненте и сервере, например метод текущего запроса $_SERVER['REQUEST_METHOD'].
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-  if (!empty($_GET['logout'])) {
-    session_destroy();
-    $_SESSION['login'] = '';
-    header('Location: ./');
-  }
-  if (!empty($_GET['error'])) {
-    print('<div>Не верный пароль/логин проверьте корректность введенных данных</div>');
-  }
+    if (!empty($_GET['logout'])) {
+        session_destroy();
+        $_SESSION['login'] = '';
+        header('Location: ./?logout=1');
+    }
+    if (!empty($_GET['error'])) {
+        if ($_GET['error'] == 'login') {
+            print('<div>Пользователя с таким логином не существует</div>');
+        } else {
+            print('<div>Неверный пароль</div>');
+        }
+    }
 ?>
 
-  <form action="" method="POST">
-    <span>Логин:</span>
-    <input name="login" />
-    <span>Пароль:</span>
-    <input name="pass" />
-    <input type="submit" value="Войти" />
-  </form>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="./style.css" />
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+        </style>
+        <title>Логин</title>
+    </head>
+
+    <body>
+        <form action="" method="POST" class="login">
+            <div>
+                Логин:<input name="login" />
+            </div>
+            <div>
+                Пароль:<input name="pass" />
+            </div>
+            <input type="submit" value="Войти" />
+        </form>
+        </div>
+    </body>
 
 <?php
-}
-// Иначе, если запрос был методом POST, т.е. нужно сделать авторизацию с записью логина в сессию.
-else {
-  $user = 'u47572';
-  $pass = '4532025';
-  $db = new PDO('mysql:host=localhost;dbname=u47572', $user, $pass, array(PDO::ATTR_PERSISTENT => true));
+} else {
+    $user = 'u47584';
+    $pass = '3864156';
+    $db = new PDO('mysql:host=localhost;dbname=u47584', $user, $pass, array(PDO::ATTR_PERSISTENT => true));
 
-  $member = $_POST['login'];
-  $member_pass_hash = md5($_POST['pass']);
+    $user_login = $_POST['login'];
+    $pass_hash = md5($_POST['pass']);
 
-  try {
-    $stmt = $db->prepare("SELECT * FROM members WHERE login = ?");
-    $stmt->execute(array($member));
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-  } catch (PDOException $e) {
-    print('Error : ' . $e->getMessage());
-    exit();
-  }
-  if ($result['pass'] == $member_pass_hash) {
+    try {
+        $stmt = $db->prepare("SELECT * FROM clients2 WHERE login = ?");
+        $stmt->execute(array($user_login));
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        print('Error : ' . $e->getMessage());
+        exit();
+    }
+    if (empty($result['pass'])) {
+        header('Location: ?error=login');
+    } else if ($result['pass'] == $pass_hash) {
 
-    $_SESSION['login'] = $_POST['login'];
-    $_SESSION['uid'] = $result['id'];
+        $_SESSION['login'] = $_POST['login'];
+        $_SESSION['uid'] = $result['id'];
 
-    header('Location: ./');
-  } else {
-    header('Location: ?error=1');
-  }
+        header('Location: ./');
+    } else {
+        header('Location: ?error=pass');
+    }
 }
