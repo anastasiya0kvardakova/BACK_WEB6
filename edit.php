@@ -66,9 +66,7 @@
                 </select>
             </div>
             <div class="input-group">
-                <textarea class="form-control" placeholder="Расскажите о себе..." name="bio" <?php if ($errors['bio']) {
-                                                                                                    print 'class="error"';
-                                                                                                } ?>><?php print $values['bio']; ?></textarea>
+                <textarea class="form-control" placeholder="Расскажите о себе..." name="bio"></textarea>
             </div>
             <div class="form-check" id="policy">
                 <input class="form-check-input" type="checkbox" value="y" id="policy" name="policy" checked />
